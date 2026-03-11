@@ -1,4 +1,9 @@
-<p><i>a low-cost DMX-over-Art-Net utility for Raspberry Pi Zero (W)</i></p>
+<div align="center">
+<h1>BASSLINE Recorder</h1>
+<p><b>Lightweight • Simple • Low-Cost</b></p>
+<p><i>The essential DMX-over-Art-Net utility for Raspberry Pi Zero (W)</i></p>
+<hr>
+</div>
 <hr>
 </div>
 <h2><p align="center">📌 Project Philosophy</p></h2>
