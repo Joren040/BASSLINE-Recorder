@@ -34,3 +34,46 @@ The <b>BASSLINE Recorder</b> is built for small bars, summer pop-ups, and venues
 <li><b>Display:</b> Standard SSD1306 I2C OLED ($128 \times 64$).</li>
 <li><b>Storage:</b> MicroSD card and/or any USB Flash Drive.</li>
 </ul>
+<h2><p align="center">🚀 Installation & Usage</p></h2>
+
+<p><b>1. Prepare the Directory Structure:</b></p>
+<p>The project expects the web interface to be inside a <code>templates</code> folder.</p>
+
+    mkdir -p ~/bassline-recorder/templates
+    # Move your files into place
+    # app.py -> ~/bassline-recorder/
+    # index.html -> ~/bassline-recorder/templates/
+
+<p><b>2. Environment Setup:</b></p>
+<p>It is recommended to use a virtual environment to manage dependencies.</p>
+
+    cd ~/bassline-recorder
+    python3 -m venv .env
+    source .env/bin/activate
+    pip install flask psutil luma.oled
+
+<p><b>3. Run the Engine:</b></p>
+
+    # Art-Net requires root to bind to port 6454
+    # If using a virtual environment with sudo, provide the full path to the env python
+    sudo .env/bin/python3 app.py
+
+<h2><p align="center">📂 File Structure</p></h2>
+
+<p>
+The system is ultra-portable, consisting of only two primary functional files:
+</p>
+<ul>
+<li><code>app.py</code>: The Python backend handling Art-Net logic, high-priority threading, and hardware I/O.</li>
+<li><code>index.html</code>: The unified web interface including all CSS and Javascript logic.</li>
+</ul>
+
+<h2><p align="center">📝 Technical Notes</p></h2>
+
+<p>
+<b>OS Recommendation:</b> This project is developed and tested on <b>Raspberry Pi OS Lite (Legacy) Bookworm</b>. The Legacy Lite version is highly recommended for the Pi Zero (W) as it is significantly less resource-intensive than newer or full desktop versions, ensuring maximum CPU cycles are available for DMX timing.
+<b>Performance:</b> By using raw sockets and native Python threading, the BASSLINE-Recorder maintains a steady frame rate even on original Pi Zero hardware.
+
+
+
+
