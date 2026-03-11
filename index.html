@@ -1,0 +1,398 @@
+<!DOCTYPE HTML><html><head>
+  <title>BASSLINE RECORDER</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; background: #121212; color: white; margin: 0 auto; padding-bottom: 100px; text-align: center; max-width: 500px; }
+    .page { display: none; padding: 15px; }
+    .active-page { display: block; }
+    .nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; background: #1f1f1f; display: flex; border-top: 1px solid #333; z-index: 1000; }
+    .nav button { flex: 1; padding: 20px; background: none; border: none; color: #888; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+    .nav button.active { color: #007bff; border-top: 3px solid #007bff; }
+    .card { background: #1e1e1e; padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #333; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    button.slot { position: relative; background: #333; color: white; padding: 12px; border: none; border-radius: 6px; cursor:pointer;}
+    button.slot.active { background: #007bff; box-shadow: 0 0 8px #007bff; }
+    .has-data::after { content: ''; position: absolute; top: 4px; right: 4px; width: 6px; height: 6px; background: #00b894; border-radius: 50%; }
+    .btn-main { width: 100%; padding: 18px; margin: 10px 0; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; font-size: 1rem; }
+    .btn-green { background: #00b894; color: white; }
+    .btn-red { background: #d63031 !important; color: white; }
+    .btn-blue { background: #0984e3; color: white; }
+    .btn-grey { background: #636e72; color: white; }
+    button:disabled { opacity: 0.3; cursor: not-allowed; filter: grayscale(1); }
+    @keyframes pulse { 0% {background: #fdcb6e;} 50% {background: #b8892d;} 100% {background: #fdcb6e;} }
+    .pulse-yellow { animation: pulse 1s infinite; color: black !important; }
+    input { background: #2a2a2a; border: 1px solid #444; color: white; padding: 12px; width: 90%; border-radius: 6px; margin: 5px 0; }
+    input[type="checkbox"] { width: auto; margin-left: 10px; transform: scale(1.5); vertical-align: middle; }
+    label { display: block; font-size: 0.8rem; color: #aaa; text-align: left; margin-left: 5%; margin-top: 12px;}
+    .card-title { font-size: 0.75rem; color: #007bff; text-transform: uppercase; font-weight: bold; text-align: left; margin-bottom: 10px; letter-spacing: 1px; }
+    .storage-container { margin: 15px 5%; text-align: left; }
+    .storage-bar-bg { width: 100%; height: 12px; background: #333; border-radius: 6px; overflow: hidden; margin: 8px 0; }
+    .storage-bar-fill { height: 100%; background: #00b894; width: 0%; transition: width 0.5s; }
+    .storage-labels { display: flex; justify-content: space-between; font-size: 0.75rem; color: #888; }
+    .btn-loading {opacity: 0.7; cursor: not-allowed !important; animation: pulse-gray 1.5s infinite; pointer-events: none;}
+    @keyframes pulse-gray {0% { background-color: #333; } 50% { background-color: #666; } 100% { background-color: #333; }} 
+  </style>
+</head>
+<body>
+  <div id="page-play" class="page active-page">
+    <h2>Playback</h2>
+    <div class="card"><div class="grid" id="grid-play"></div></div>
+    <div class="card">
+      <div style="text-align: left; margin-bottom: 5px;">
+        <label style="display:inline; margin-left: 5%;" for="loopCheck">Loop Playback</label>
+        <input type="checkbox" id="loopCheck" onchange="fetch('/setLoop?v='+(this.checked?1:0))">
+      </div>
+      <label>Playback Speed: <span id="speedVal">1.0</span>x</label>
+      <input type="range" id="speedSlider" min="0.1" max="1.0" step="0.1" value="1.0" oninput="document.getElementById('speedVal').innerText=this.value; fetch('/setSpeed?v='+this.value)">
+    </div>
+    <button id="playBtn" class="btn-main btn-green" onclick="togglePlay()">PLAY</button>
+    <button id="stopBtn" class="btn-main btn-grey" onclick="curState.playing = false; document.getElementById('boBtn').innerText='BLACKOUT'; document.getElementById('boBtn').classList.remove('pulse-yellow'); fetch('/stop')">STOP</button>
+    <button id="boBtn" class="btn-main btn-grey" onclick="this.style.background='#fdcb6e'; setTimeout(()=>this.style.background='', 200); fetch('/blackout')">BLACKOUT</button>
+  </div>
+
+  <div id="page-rec" class="page">
+    <h2>Record</h2>
+    <div class="card"><div class="grid" id="grid-rec"></div></div>
+    <button id="recBtn" class="btn-main btn-green" onclick="toggleRec()">ARM RECORDING</button>
+  </div>
+
+  <div id="page-settings" class="page">
+    <h2>Settings</h2>
+    <div class="card">
+		<div class="card-title">Ethernet Network Settings</div>
+		<p style="font-size:0.7rem; color:#aaa; text-align:left; margin-left:5%;">Current IP: <span id="curIP" style="color:#00d1ff;">--</span></p>
+		<label>Static IP (Leave blank for DHCP)</label>
+		<input type="text" id="staticIP" placeholder="e.g. 192.168.1.100">    
+		<label>Subnet Mask</label>
+		<input type="text" id="staticMask" placeholder="e.g. 255.255.255.0">    
+		<label>Gateway</label>
+		<input type="text" id="staticGW" placeholder="e.g. 192.168.1.1">
+		<button onclick="applyNet()" class="btn-main btn-blue" style="background:#e67e22!important">Apply & Reboot</button>
+    <p style="font-size:0.6rem; color:#888;">Applying static settings will restart the device.</p>
+</div>
+    <div class="card">
+      <div class="card-title">Playback Settings</div>
+      <label>Output Universe</label><input type="number" id="pUni" min="0" step="1">
+      <label>Unicast IP (Blank = Broadcast)</label><input type="text" id="pIP">
+      <button onclick="savePlay()" class="btn-main btn-blue">Update Playback</button>
+    </div>
+    <div class="card">
+      <div class="card-title">Recording Settings</div>
+      <label>Record Universe</label><input type="number" id="rUni" min="0" step="1">
+      <button onclick="saveRec()" class="btn-main btn-blue">Update Record Universe</button>
+      <button onclick="scan()" class="btn-main btn-grey" style="font-size:0.7rem">Scan Art-Net</button>
+      <div id="scanRes" style="color:#00d1ff; font-size:0.7rem; margin-top: 10px;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Storage</div>
+      <div style="margin-bottom: 15px;">
+        <div style="font-size: 0.75em; text-transform: uppercase; opacity: 0.6; margin-bottom: 4px; font-weight: bold;">Active Path:</div>
+        <div id="curPath" style="background: rgba(0,0,0,0.2); font-family: monospace; padding: 6px 10px; border-radius: 4px; font-size: 0.9em; border: 1px solid rgba(255,255,255,0.1); color: #2ecc71; overflow-x: auto; white-space: nowrap;">
+        /mnt/artnet_data
+        </div>
+      </div>
+      <div class="storage-container">
+      <div class="storage-labels">
+        <span>Used: <span id="usedText">0 MB</span></span>
+        <span>Total: <span id="totalText">0 MB</span></span>
+      </div>
+      <div class="storage-bar-bg"><div id="storageFill" class="storage-bar-fill"></div></div>
+      </div>
+      <button id="mountBtn" onclick="mountUSB()" class="btn-main btn-blue">MOUNT USB DRIVE</button>
+      <div class="grid" id="grid-storage" style="margin-top: 20px; margin-bottom: 15px;"></div>
+      <div style="display: flex; gap: 10px;">
+        <button onclick="clearSlot()" class="btn-main btn-grey" style="background:#e67e22!important; flex:1; margin: 10px 0;">CLEAR SLOT</button>
+        <button onclick="clearAll()" class="btn-main btn-red" style="flex:1; margin: 10px 0;">CLEAR ALL</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">System</div>
+      <button id="oledBtn" onclick="toggleOLED()" class="btn-main btn-red" style="width: 100%; margin-bottom: 10px;">DISPLAY OFF</button>
+      <div style="display: flex; gap: 10px;">
+        <button onclick="sysAction('Reboot')" class="btn-main btn-grey" style="background:#e67e22!important; flex:1; margin: 10px 0;">REBOOT</button>
+        <button onclick="sysAction('Shutdown')" class="btn-main btn-red" style="flex:1; margin: 10px 0;">SHUTDOWN</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav">
+    <button id="nav-play" class="active" onclick="showPage('play')">PLAY</button>
+    <button id="nav-rec" onclick="showPage('rec')">REC</button>
+    <button id="nav-settings" onclick="showPage('settings')">SETTINGS</button>
+  </div>
+<script>
+  // Unified State Management
+  let curState = { slot: 1, playing: false, recording: false, armed: false };
+  let isRecCooldown = false;
+  let initialLoadDone = false; 
+
+  // --- 1. Navigation & Initialization ---
+  function showPage(p) { 
+    document.querySelectorAll('.page').forEach(el => el.classList.remove('active-page')); 
+    document.querySelectorAll('.nav button').forEach(el => el.classList.remove('active')); 
+    document.getElementById('page-' + p).classList.add('active-page'); 
+    document.getElementById('nav-' + p).classList.add('active'); 
+    if (p === 'settings') updateStorage();
+  }
+
+  // Build the three grids (Play, Rec, Storage)
+  const grids = ['grid-play', 'grid-rec', 'grid-storage'];
+  const prefixes = ['ps', 'rs', 'ss'];
+  grids.forEach((gridId, gIdx) => {
+    const el = document.getElementById(gridId);
+    for (let i = 1; i <= 16; i++) {
+      el.innerHTML += `<button id="${prefixes[gIdx]}${i}" class="slot" onclick="sel(${i})">${i}</button>`;
+    }
+  });
+
+  // --- 2. Master Sync Engine (Runs every 1s) ---
+  function syncStatus() {
+    fetch('/status').then(r => r.json()).then(s => {
+      // A. Populate Inputs ONLY ONCE on page load
+      if (!initialLoadDone) {
+        if (s.pUni !== undefined) document.getElementById('pUni').value = s.pUni;
+        if (s.pIP !== undefined) document.getElementById('pIP').value = s.pIP;
+        if (s.rUni !== undefined) document.getElementById('rUni').value = s.rUni;
+        if (s.staticIP) document.getElementById('staticIP').value = s.staticIP;
+        if (s.staticMask) document.getElementById('staticMask').value = s.staticMask;
+        if (s.staticGW) document.getElementById('staticGW').value = s.staticGW;
+        initialLoadDone = true;
+      }
+
+      // B. Update Global UI Elements
+      document.getElementById('curIP').innerText = s.ip;
+      document.getElementById('loopCheck').checked = s.loop;
+      const isBusy = (s.playing || s.paused || s.recording || s.armed);
+
+      // C. Sync Slot Selection Visually
+      if (s.slot !== curState.slot) {
+        document.querySelectorAll('.slot').forEach(b => b.classList.remove('active'));
+        ['ps', 'rs', 'ss'].forEach(p => {
+          const btn = document.getElementById(p + s.slot);
+          if (btn) btn.classList.add('active');
+        });
+        curState.slot = s.slot;
+      }
+
+      // D. Playback Button Logic
+      const pb = document.getElementById('playBtn');
+      const sb = document.getElementById('stopBtn');
+      sb.className = (s.playing || s.paused) ? 'btn-main btn-red' : 'btn-main btn-grey';
+      
+      if (s.playing) {
+        pb.className = 'btn-main btn-blue'; pb.innerText = 'PAUSE';
+        curState.playing = true;
+      } else {
+        pb.className = 'btn-main btn-green'; pb.innerText = 'PLAY';
+        curState.playing = false;
+      }
+
+      // E. Record Button Logic (with Cooldown Guard)
+      const rb = document.getElementById('recBtn');
+      if (!isRecCooldown) {
+        if (s.recording) {
+          rb.className = 'btn-main btn-red'; rb.innerText = 'STOP RECORDING';
+          curState.recording = true; curState.armed = false;
+        } else if (s.armed) {
+          rb.className = 'btn-main pulse-yellow'; rb.innerText = 'WAITING...';
+          curState.armed = true; curState.recording = false;
+        } else {
+          rb.className = 'btn-main btn-green'; rb.innerText = 'ARM RECORDING';
+          curState.recording = false; curState.armed = false;
+        }
+      }
+
+      // F. Blackout Logic
+      const boBtn = document.getElementById('boBtn');
+      if (s.bO) {
+        boBtn.classList.add('pulse-yellow');
+        boBtn.innerText = "BLACKOUT ACTIVE";
+      } else {
+        boBtn.classList.remove('pulse-yellow');
+        boBtn.innerText = "BLACKOUT";
+      }
+      
+      // G. OLED Display Logic
+      const oledBtn = document.getElementById('oledBtn');
+      if (oledBtn) {
+        if (s.oled_on) {
+          oledBtn.className = 'btn-main btn-red';
+          oledBtn.innerText = 'DISPLAY OFF';
+        } else {
+          oledBtn.className = 'btn-main btn-green';
+          oledBtn.innerText = 'DISPLAY ON';
+        }
+      }
+
+      // H. Storage Path Label
+      const pathLabel = document.getElementById('curPath');
+      if (pathLabel && s.data_dir) {
+        pathLabel.innerText = s.data_dir;
+      }
+      
+      // I. Interaction Safeguards
+      pb.disabled = (s.recording || s.armed);
+      rb.disabled = (s.playing || s.paused);
+      boBtn.disabled = (s.recording || s.armed);
+      ['pUni', 'pIP', 'rUni', 'staticIP', 'staticGW', 'staticMask'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.disabled = isBusy;
+      });
+      document.querySelectorAll('#page-settings button, #grid-rec button').forEach(b => b.disabled = isBusy);
+    });
+  }
+
+  // --- 3. Interaction Functions ---
+  function sel(n) { 
+    curState.slot = n;
+    fetch('/setSlot?n=' + n); 
+    // Immediate visual feedback before sync
+    document.querySelectorAll('.slot').forEach(b => b.classList.remove('active'));
+    ['ps', 'rs', 'ss'].forEach(p => document.getElementById(p+n).classList.add('active'));
+  }
+
+  function toggleRec() {
+    if (isRecCooldown) return;
+    const rb = document.getElementById('recBtn');
+
+    if (curState.recording || curState.armed) {
+      curState.recording = false; curState.armed = false;
+      rb.className = 'btn-main btn-grey'; rb.innerText = 'SAVING...';
+      isRecCooldown = true;
+      fetch('/stop').then(() => {
+        setTimeout(() => { isRecCooldown = false; updateStorage(); }, 1000);
+      });
+    } else {
+      // --- Confirmation Logic Start ---
+      const slotBtn = document.getElementById('rs' + curState.slot);
+      if (slotBtn && slotBtn.classList.contains('has-data')) {
+        if (!confirm(`Slot ${curState.slot} has data. Overwrite?`)) return;
+      }
+      // --- Confirmation Logic End ---
+
+      curState.armed = true;
+      rb.className = 'btn-main pulse-yellow'; rb.innerText = 'WAITING...';
+      // Check for 400 error to trigger the alert
+      fetch('/arm').then(response => {
+        if (!response.ok) {
+          return response.text().then(text => { alert(text); });
+        }
+        updateStorage();
+      });
+    }
+  }
+
+  function togglePlay() {
+    if (curState.recording || curState.armed) return;
+    fetch(curState.playing ? '/pause' : '/play')
+      .then(response => {
+        if (!response.ok) {
+          // If 400 error (USB pulled), show the alert and stop here
+          return response.text().then(text => { alert(text); });
+        }
+        // Success logic: syncStatus will update the play/pause button state
+      });
+  }
+
+  function toggleOLED() {
+    fetch('/toggleOLED');
+  
+  }
+  function applyNet() {
+    const ip = document.getElementById('staticIP').value;
+    const nm = document.getElementById('staticMask').value;
+    const gw = document.getElementById('staticGW').value;
+    if (confirm(ip ? `Set Static IP to ${ip}?` : "Revert to DHCP?")) {
+      fetch(`/setNetwork?ip=${ip}&nm=${nm}&gw=${gw}`).then(r => r.text()).then(t => {
+        if (t === "ok") alert("Settings applied. Rebooting...");
+        else alert("Error: " + t);
+      });
+    }
+  }
+
+  function mountUSB() {
+    const btn = document.getElementById('mountBtn');
+    if (!btn) return;
+
+    // 1. Disable UI and start blinking
+    btn.classList.add('btn-loading');
+    const originalText = btn.innerText;
+    btn.innerText = "MOUNTING...";
+
+    fetch('/mount')
+      .then(response => response.text())
+      .then(message => {
+        // 2. Alert the result from the Python backend
+        alert(message);
+      })
+      .catch(err => {
+        alert("System Error: " + err);
+      })
+      .finally(() => {
+        // 3. Reset Button UI
+        btn.classList.remove('btn-loading');
+        btn.innerText = originalText;
+        
+        // 4. Refresh the progress bar and path label
+        updateStorage();
+      });
+  }
+
+  function updateStorage() {
+    fetch('/storage').then(r => r.json()).then(data => {
+      // Helper to decide between MB and GB
+      const formatSize = (bytes) => {
+        if (bytes >= 1073741824) return (bytes / 1073741824).toFixed(2) + " GB";
+        return (bytes / 1048576).toFixed(1) + " MB";
+      };
+
+      document.getElementById('usedText').innerText = formatSize(data.used);
+      document.getElementById('totalText').innerText = formatSize(data.total);
+      
+      // Update progress bar
+      document.getElementById('storageFill').style.width = (data.used / data.total * 100) + "%";
+      
+      // Update green dots for data slots
+      for (let i = 1; i <= 16; i++) {
+        const has = data.slots.includes(i);
+        ['ps', 'rs', 'ss'].forEach(p => {
+          const btn = document.getElementById(p + i);
+          if (btn) btn.classList.toggle('has-data', has);
+        });
+      }
+    });
+  }
+
+  function scan() {
+    const res = document.getElementById('scanRes');
+    res.innerText = "Scanning Art-Net...";
+    fetch('/getUnis');
+    setTimeout(() => {
+      fetch('/getUnis').then(r => r.json()).then(d => {
+        res.innerText = d.length > 0 ? "Universes: " + d.join(', ') : "No Art-Net traffic detected.";
+      });
+    }, 3000);
+  }
+
+  function savePlay() { fetch(`/savePlay?u=${document.getElementById('pUni').value}&ip=${document.getElementById('pIP').value}`).then(() => alert("Saved")); }
+  function saveRec() { fetch(`/saveRec?u=${document.getElementById('rUni').value}`).then(() => alert("Saved")); }
+  
+  function clearSlot() {
+    if (confirm(`Delete Slot ${curState.slot}?`)) fetch('/clearSlot?n=' + curState.slot).then(() => updateStorage());
+  }
+
+  function clearAll() {
+    if (confirm("Delete ALL recordings?")) fetch('/clearAll').then(() => updateStorage());
+  }
+
+  function sysAction(action) {
+    if (confirm(`Are you sure you want to ${action}?`)) {
+      fetch(action === 'Reboot' ? '/sysReboot' : '/sysShutdown').then(r => {
+        if (r.ok) alert(`System is ${action.toLowerCase()}ing...`);
+      });
+    }
+  }
+
+  // Execution
+  setInterval(syncStatus, 1000);
+  updateStorage();
+</script></body></html>
