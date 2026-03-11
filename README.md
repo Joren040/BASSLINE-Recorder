@@ -28,11 +28,23 @@ The <b>BASSLINE Recorder</b> is built for small bars, summer pop-ups, and venues
 <h2><p align="center">🛠 Hardware Requirements</p></h2>
 
 <p>A complete show-controller for a very low cost:</p>
+<p><b>Essentials:</b></p>
 <ul>
 <li><b>Controller:</b> Raspberry Pi Zero / Zero W / Zero 2W.</li>
-<li><b>Connectivity:</b> Waveshare Ethernet/USB Hub HAT (provides essential stable networking and USB storage ports).</li>  
+<li><b>Connectivity:</b> Waveshare Ethernet/USB Hub HAT (provides stable wired networking and USB ports).</li>
 <li><b>Display:</b> Standard SSD1306 I2C OLED ($128 \times 64$).</li>
-<li><b>Storage:</b> MicroSD card and/or any USB Flash Drive.</li>
+<li><b>Power:</b> High-quality Micro-USB power supply.</li>
+<li><b>Storage:</b> MicroSD card (for OS and internal recordings) and USB Flash Drive.</li>
+</ul>
+
+<p><b>Additions: to create a full device i have used some additional components</b></p>
+<ul>
+<li>CP30100 – USB-A (USB TYPE-A), Stacked USB 2.0 Receptacle Connector 8 Position Panel Mount, Through Hole from CLIFF Electronics</li>
+<li>CERRXIAN USB 2.0 Extension Cable 9 Inch Mini USB Cable Right Angle Left Angle Male to USB to Type A 2.0 Male Left Angle</li>
+<li>Old straight USB cabel cut-off the A-end (both this one and the Right Angle one are used to connect waves share to the CP30100)</li>    
+<li>2x USB 3.1 Panel Mount Connector, D-type USB-C</li>
+<li>deleyCON 0.15m USB-C to Micro USB Adapter Cable 15cm Short</li>
+<li>Cliff CP30220 CP30220 XLR-adapter UTP RJ45 Cat5e</li>
 </ul>
 
 <h2><p align="center">🚀 Installation & Usage</p></h2>
