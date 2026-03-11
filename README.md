@@ -27,13 +27,14 @@ The <b>BASSLINE Recorder</b> is built for small bars, summer pop-ups, and venues
 
 <h2><p align="center">🛠 Hardware Requirements</p></h2>
 
-<p>A complete show-controller for the cost of a few drinks:</p>
+<p>A complete show-controller for a very low cost:</p>
 <ul>
 <li><b>Controller:</b> Raspberry Pi Zero / Zero W / Zero 2W.</li>
 <li><b>Connectivity:</b> Waveshare Ethernet/USB Hub HAT (provides essential stable networking and USB storage ports).</li>  
 <li><b>Display:</b> Standard SSD1306 I2C OLED ($128 \times 64$).</li>
 <li><b>Storage:</b> MicroSD card and/or any USB Flash Drive.</li>
 </ul>
+
 <h2><p align="center">🚀 Installation & Usage</p></h2>
 
 <p><b>1. Prepare the Directory Structure:</b></p>
