@@ -4,8 +4,6 @@
 <p><i>The essential DMX-over-Art-Net utility for Raspberry Pi Zero (W)</i></p>
 <hr>
 </div>
-<hr>
-</div>
 <h2><p align="center">📌 Project Philosophy</p></h2>
 <p>
 The <b>BASSLINE Recorder</b> is built for small bars, summer pop-ups, and venues that need professional lighting without the daily overhead of a dedicated technician. It bridges the gap between complex programming and simple daily operation:
