@@ -88,7 +88,7 @@ The system is ultra-portable, consisting of only two primary functional files:
 <b>Performance:</b> By using raw sockets and native Python threading, the BASSLINE-Recorder maintains a steady frame rate even on original Pi Zero hardware.
 
 <p align="center">
-  <img src="https://github.com/Joren040/BASSLINE-Recorder/blob/main/Images/Pictures/107aaa82-cb2d-42f7-a8c8-fbca79f0bb3b.jpg" width="600" title="Ethernet Node">
+  <img src="https://github.com/Joren040/BASSLINE-Recorder/blob/main/Images/Pictures/107aaa82-cb2d-42f7-a8c8-fbca79f0bb3b.jpg" width="600" title="BASSLINE Recorder">
 </p>
 
 
