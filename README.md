@@ -87,6 +87,8 @@ The system is ultra-portable, consisting of only two primary functional files:
 <b>OS Recommendation:</b> This project is developed and tested on <b>Raspberry Pi OS Lite (Legacy) Bookworm</b>. The Legacy Lite version is highly recommended for the Pi Zero (W) as it is significantly less resource-intensive than newer or full desktop versions, ensuring maximum CPU cycles are available for DMX timing.
 <b>Performance:</b> By using raw sockets and native Python threading, the BASSLINE-Recorder maintains a steady frame rate even on original Pi Zero hardware.
 
-
+<p align="center">
+  <img src="https://github.com/Joren040/BASSLINE-Recorder/blob/main/Images/Pictures/107aaa82-cb2d-42f7-a8c8-fbca79f0bb3b.jpg" width="600" title="Ethernet Node">
+</p>
 
 
