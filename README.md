@@ -20,9 +20,9 @@ The <b>BASSLINE Recorder</b> is built for small bars, summer pop-ups, and venues
 <li><b>Pi Zero Optimized:</b> Designed to run reliably on the most affordable Raspberry Pi hardware.</li>
 <li><b>Capture & Play:</b> Record any Art-Net stream and store it in one of 16 slots for instant recall.</li>
 <li><b>No-Tech Interface:</b> Simple "Play" buttons and speed controls accessible from any smartphone or tablet.</li>
-<li><b>Smart Storage:</b> Automatically detects USB sticks for show transfers, falling back to SD card storage when needed.</li>
+<li><b>Smart Storage:</b> Able to mount USB thumb drives for storage, falling back to SD card storage when needed.</li>
 <li><b>Headless Reliability:</b> Integrated OLED shows the IP address and status immediately upon boot.</li>
-<li><b>Emergency Blackout:</b> A dedicated "Panic" button to instantly clear the DMX universe.</li>
+<li><b>Blackout:</b> A dedicated "Black Out" button to instantly fill the DMX universe with all 0.</li>
 </ul>
 
 <h2><p align="center">🛠 Hardware Requirements</p></h2>
@@ -70,6 +70,31 @@ The <b>BASSLINE Recorder</b> is built for small bars, summer pop-ups, and venues
     # Art-Net requires root to bind to port 6454
     # If using a virtual environment with sudo, provide the full path to the env python
     sudo .env/bin/python3 app.py
+
+<p><b>4. create system service (recommended):</b></p>
+<p>To make the recorder start automatically on boot, create a systemd service file.</p>
+
+    sudo nano /etc/systemd/system/bassline.service
+
+<p>Paste the following configuration into the file (adjust the path if your username is not 'pi'):</p>
+
+    [Unit]
+    Description=BASSLINE Art-Net Recorder Service
+    After=network.target
+
+    [Service]
+    WorkingDirectory=/home/pi/bassline-recorder
+    ExecStart=/home/pi/bassline-recorder/.env/bin/python3 app.py
+    Restart=always
+    User=root
+
+    [Install]
+    WantedBy=multi-user.target
+<p>Save, exit, and run the following to enable the service:</p>
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable bassline.service
+    sudo systemctl start bassline.service
 
 <h2><p align="center">📂 File Structure</p></h2>
 
