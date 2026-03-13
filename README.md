@@ -41,7 +41,7 @@ The <b>BASSLINE Recorder</b> is built for small bars, summer pop-ups, and venues
 <ul>
 <li>CP30100 – USB-A (USB TYPE-A), Stacked USB 2.0 Receptacle Connector 8 Position Panel Mount, Through Hole from CLIFF Electronics</li>
 <li>CERRXIAN USB 2.0 Extension Cable 9 Inch Mini USB Cable Right Angle Left Angle Male to USB to Type A 2.0 Male Left Angle</li>
-<li>Old straight USB cabel cut-off the A-end (both this one and the Right Angle one are used to connect waves share to the CP30100)</li>    
+<li>Old straight USB cabel cut-off the A-end (both this one and the Right Angle one are used to connect waveshare USB to the CP30100)</li>    
 <li>2x USB 3.1 Panel Mount Connector, D-type USB-C</li>
 <li>deleyCON 0.15m USB-C to Micro USB Adapter Cable 15cm Short</li>
 <li>Cliff CP30220 CP30220 XLR-adapter UTP RJ45 Cat5e</li>
